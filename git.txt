@@ -92,6 +92,35 @@ commit cb926e7ea50ad11b8f9e909c05226233bf755030
 Author: Michael Liao <askxuefeng@gmail.com>
 Date:   Mon Aug 19 17:51:55 2013 +0800
     wrote a readme file
+每次更新都有一个SHA-1校验和、作者的名字和电子邮
+件地址、提交时间,最后缩进一个段落显示提交说明
+
+-p选项展开显示每次提交的内容差异
+用-2 则仅显示最近的两次更新
+--stat仅显示简要的增改行数统计
+$ git log –p -2
+commit ca82a6dff817ec66f44342007202690a93
+Author: Scott Chacon <schacon@gee-mail.com>
+Date: Mon Mar 17 21:52:11 2008 -0700
+changed the verison number
+diff --git a/Rakefile b/Rakefile
+index a874b73..8f94139 100644
+--- a/Rakefile
++++ b/Rakefile
+@@ -5,7 +5,7 @@ require 'rake/gempackagetask'
+spec = Gem::Specification.new do |s|
+- s.version = "0.1.0"
++ s.version = "0.1.1"
+s.author = "Scott Chacon"
+commit 085bb3bcb608e1e8451d4b2432f8ecbe6
+Author: Scott Chacon <schacon@gee-mail.com>
+Date: Sat Mar 15 16:40:33 2008 -0700
+removed unnecessary test code
+diff --git a/lib/simplegit.rb b/lib/sigit.rb
+index a0a60ae..47c6340 100644
+--- a/lib/simplegit.rb
++++ b/lib/simplegit.rb
+@@ -18,8 +18,3 @@ class SimpleGit
 
 如果觉得输出信息太多,加上--pretty=oneline参数
 $ git log --pretty=oneline
@@ -104,55 +133,311 @@ $ git log --pretty=oneline
 本,也就是最新的提交383f8,上一个版本就是HEAD^，
 上上一个版本就是HEAD^^，当然往上100为HEAD~100
 
+format可以定制要显示的记录格式
+$ git log --pretty=format:"%h - %an, %ar : %s"
+ca82a6d - Scott , 11 months ago : changed the 
+085bb3b - Scott , 11 months ago : removed unne
+a11bef0 - Scott , 11 months ago : first commit
+
+选项说明
+%H 提交对象（commit）的完整哈希字串
+%h 提交对象的简短哈希字串
+%T 树对象（tree）的完整哈希字串
+%t 树对象的简短哈希字串
+%P 父对象（parent）的完整哈希字串
+%p 父对象的简短哈希字串
+%an 作者（author）的名字
+%ae 作者的电子邮件地址
+%ad 作者修订日期（可以用-date= 选项定制格式）
+%ar 作者修订日期，按多久以前的方式显示
+%cn 提交者(committer)的名字
+%ce 提交者的电子邮件地址
+%cd 提交日期
+%cr 提交日期，按多久以前的方式显示
+%s 提交说明
+
+git log 命令支持的选项
+选项说明
+-p 按补丁格式显示每个更新之间的差异
+--stat 显示每次更新的文件修改统计信息
+--shortstat 只显示--stat中最后的行数
+            修改添加移除统计
+--name-only 仅在提交信息后显示已修改
+            的文件清单
+--name-status 显示新增、修改、删除的
+            文件清单
+--abbrev-commit 仅显示SHA-1的前几个字符,
+            而非所有的40个字符
+--relative-date 使用较短的相对时间显示
+            (比如，“2 weeks ago”)
+--graph 显示ASCII 图形表示的分支合并历史
+--pretty 使用其他格式显示历史提交信息,可用
+的选项包括oneline,short,full,fuller和format
+
 当前版本"append GPL"回退上一个版本“add distributed”
 就可以使用git reset命令：git reset --hard HEAD^
 还可以根据commit id回退,只需独有的前几位
 git reset --hard 33c8
 
+限制输出长度
+选项说明
+-(n) 仅显示最近的n 条提交
+--since, --after 仅显示指定时间之后的提交
+--until, --before 仅显示指定时间之前的提交
+--author 仅显示指定作者相关的提交
+--committer 仅显示指定提交者相关的提交
+
 想要回退到当前版本之后的版本,这时必须使用commit号
 git reflog可以查看所有的commit记录
 
-4、工作区和暂存区
-工作区（Working Directory）是使用git init 创建的那个目录
-工作区有一个隐藏目录.git，是Git的版本库
-Git的版本库里存了很多东西，其中最重要的就是称为stage（或者叫index）的暂存区，
-还有Git为我们自动创建的第一个分支master，以及指向master的一个指针叫HEAD。
-git add命令实际上就是把要提交的所有修改放到暂存区（Stage）
-git commit就可以一次性把暂存区的所有修改提交到分支
-git diff HEAD -- file命令可以查看工作区和版本库里面最新版本的区别
+4、忽略文件
+有些文件无需纳入Git的管理和未跟踪文件列表
+创建.gitignore文件,列出要忽略的文件模式
+1) # 此为注释 将被Git 忽略
+2) *.a # 忽略所有.a 结尾的文件
+3) !lib.a # 但lib.a 除外
+4) /TODO # 仅忽略项目根目录下的TODO文件
+5) build/ # 忽略build/目录下的所有文件
+6) doc/*.txt #会忽略doc/notes.txt
+   但不包括doc/server/arch.txt
 
-5、撤销修改
-git checkout -- file可以丢弃工作区的修改
-命令git checkout -- readme.txt意思就是，把readme.txt文件在工作区的修改全部撤销，这里有两种情况：
-一种是readme.txt自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
-一种是readme.txt已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。
-总之，就是让这个文件回到最近一次git commit或git add时的状态。
-git checkout -- file命令中的--很重要，没有--，就变成了“切换到另一个分支”的命令
+5、跳过使用暂存区域提交
+git commit加上-a跳过git add 步骤直接提交
+使用:git commit -a -m 'added benchmarks'
 
-如果不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改
-1、git reset HEAD file可以把暂存区的修改撤销掉
-2、git checkout -- file 将目录清空
+6、移除文件
+1)文件删除(rm file)后使用该命令提交给
+暂存区git rm grit.gemspec
 
-6、删除文件
-如果使用rm命令删除了工作区的文件，这时需要使用
-git rm file删掉，并且git commit提交给版本库
-如果删除错了，这时需要使用：
-git checkout -- file  git checkout其实是用版本库里的版本替换工作区的版本，
-无论工作区是修改还是删除，都可以“一键还原”。
+2) 删除之前修改过并且提交到暂存区域,使用强制
+删除选项-f,以防误删除文件后丢失修改的内容
 
-7、添加远程库
-当在某个文件夹下使用了git init时，为了和某个远程库连接在一起
-git remote add origin git@github.com:michaelliao/learngit.git
-会将远程库和当前目录联系在一起，远程库的名字就是origin，这是Git默认的叫法。
-git push -u origin master 把当前分支master推送到远程origin。
-由于远程库是空的，我们第一次推送master分支时，加上了-u参数，Git不但会把本地的master
-分支内容推送的远程新的master分支，还会把本地的master分支和远程的master分支关联起来，
-在以后的推送或者拉取时就可以简化命令。以后只需使用git push origin master
+3)文件从Git暂存删除,但文件保留在当前工作目录
+git rm --cached readme.txt
 
-8、从远程库克隆
-git clone git@github.com:michaelliao/gitskills.git
-把git克隆到当前的目录下，这时会生成一个叫做gitskills的文件夹
-GitHub的地址还可以用https://github.com/michaelliao/gitskills.git
-实际上，Git支持多种协议，默认的git://使用ssh，但也可以使用https等其他协议。
-使用https除了速度慢以外，还有个最大的麻烦是每次推送都必须输入口令，但是在
-某些只开放http端口的公司内部就无法使用ssh协议而只能用https。
+4)如果删除错了,使用：git checkout -- file  
+用版本库里的版本替换工作区的版本
+
+7、移动文件
+git mv file_from file_to 
+相当于
+mv README.txt README
+git rm README.txt
+git add README
+
+8、撤消操作
+1) 修改最后一次提交
+git commit -m 'initial commit'
+git add forgotten_file
+git commit --amend
+三条命令最终得到一个提交,第二个提交
+命令修正了第一个的提交内容
+
+2) 取消已经暂存的文件
+git reset HEAD <file>
+
+3) 取消对文件的修改
+git checkout -- file
+
+9、远程仓库的使用
+1) 查看当前的远程库
+$ git remote -v 会列出所有仓库
+origin git://github.com/schacon/ti.git
+
+2) 添加远程仓库
+git remote add [shortname] [url]：[]可省
+shortname用于远程名字
+git remote add pb 同1)
+
+3) 从远程仓库抓取数据
+git fetch [remote-name]
+1: fetch命令将远端的数据拉到本地仓库,并不自动
+合并到当前工作分支,只有准备好了,才能手工合并
+
+2: 如果设置了某个分支用于跟踪某个远端仓库的分支
+可以使用git pull命令自动抓取数据下来,然后将远端
+分支自动合并到本地仓库中当前分支
+
+3: 默认情况下git clone命令本质上就是自动创建了
+本地的master分支用于跟踪远程仓库中的master分支
+
+4) 推送数据到远程仓库
+git push [remote-name] [branch-name]
+
+5) 查看远程仓库详细信息
+git remote show [remote-name]
+
+6) 远程仓库的删除和重命名
+git remote rename pb paul
+git remote rm paul
+
+10、工作区和暂存区
+工作区是使用git init创建的那个目录,工作区有一个
+隐藏目录.git，是Git的版本库,Git的版本库里存了很
+多东西,其中最重要的就是称为stage的暂存区,还有Git
+为我们自动创建的第一个分支master,以及指向master
+的一个指针叫HEAD
+git add命令实际上就是把要提交的所有修改放到暂存区
+git commit就可以一次性把暂存区所有修改提交到分支
+git diff HEAD -- file命令查看工作区和版本库的区别
+
+11、创建与合并分支
+1) Git中的分支本质上是指向commit对象的可变指针
+
+2) master分支是一条线,Git用master指向最新的提交,
+再用HEAD指向master,就能确定当前分支的提交点
+
+3) 创建新分支dev,Git新建一个dev指针指向master相
+同的提交,再把HEAD指向dev,就表示当前分支在dev上
+
+4) 对工作区的修改和提交就是针对dev分支了,新提交
+一次后,dev指针往前移动一步,而master指针不变
+
+5) 分支与master合并时,master指向当前的提交,并且
+head指向master,删除dev分支就是把dev指针给删掉
+
+分支命令
+1)git branch命令查看当前所有分支
+$ git branch
+* dev
+  master
+git branch的当前分支前面会标一个*号
+git branch testing创建一个testing分支
+git branch -v查看各个分支最后一次commit信息
+git branch --merge已经与当前分支合并的分支
+git branch --no-merged尚未与当前分支合并的分支
+
+2)创建dev分支，然后切换到dev分支：
+$ git checkout -b dev
+Switched to a new branch 'dev'
+git checkout命令加上-b参数表示创建并切换
+相当于以下两条命令：
+$ git branch dev
+$ git checkout dev
+Switched to branch 'dev'
+
+3)dev分支提交
+$ git add readme.txt 
+$ git commit -m "branch test"
+[dev fec145a] branch test
+1 file changed, 1 insertion(+)
+ 
+4)切换回master分支,这时数据没有发生变化
+$ git checkout master
+Switched to branch 'master'
+
+5)将dev分支合并到master分支：
+$ git merge dev
+Updating d17efd8..fec145a
+Fast-forward
+readme.txt |    1 +
+1 file changed, 1 insertion(+)
+Fast-forward信息告诉我们合并是"快进模式"
+把master指向dev的当前提交,合并速度非常快
+
+6)删除dev分支：
+$ git branch -d dev
+Deleted branch dev (was fec145a).
+删除后，查看branch，就只剩下master分支了
+git branch -D dev 强制删除分支
+
+12、分支合并复杂情况
+Fast-forward合并适用于dev在当前分支的后面
+当这两个分支相交在前一个节点时,这时用两个
+分支的末端和它们的共同祖先进行三方合并计算
+它同样的使用git merge dev 命令
+
+冲突的合并
+修改了两个待合并分支里同一个文件的同一部分,
+Git就无法干净地把两者合到一起
+$ git merge iss53
+Auto-merging index.html
+CONFLICT(content):Merge conflict in index.html
+Automatic merge failed;fix conflicts and 
+    then commit the result.
+用git status查看哪些文件在合并时发生冲突
+[master*]$ git status
+index.html: needs merge
+# On branch master
+# Changed but not updated:
+# (use "git add <file>..." to update committed)
+# (use "git checkout -- <file>..." to discard 
+      changes in working directory)
+# unmerged: index.html
+包含未解决冲突的文件会以未合并(unmerged)状态列出
+<<<<<<< HEAD:index.html
+<div id="footer">contact : ema@github.com</div>
+=======
+<div id="footer">
+please contact us at support@github.com
+</div>
+>>>>>>> iss53:index.html
+解决冲突的办法是二者选其一或者亲自整合到一起
+解决了冲突后,运行git add将把它们标记为已解决
+
+13、远程分支
+远程分支是对远程仓库状态的索引它们是一些无法移动
+的本地分支,只有在进行Git的网络活动时才会更新
+远程分支的表示形式(远程仓库名)/(分支名)
+只要不和服务器通讯,origin/master 指针不会移动
+
+运行git fetch origin来进行同步,该命令首先找到origin 
+是哪个服务器,从上面获取你尚未拥有的数据,更新你本地的
+数据库,然后把origin/master的指针移到它最新的位置
+
+1) 推送(和其他人分享某个分支)
+1: git push origin serverfix取出我的serverfix本地
+分支,推送它来更新远程仓库的serverfix分支
+
+2: 也可以运行git push origin serverfix:serferfix
+提取我的serverfix 并更新到远程仓库的serverfix
+
+3: 若想把远程分支叫作awesomebranch
+可以用git push origin serverfix:awesomebranch
+
+4: 如果要把该内容合并到当前分支
+可以运行git merge origin/serverfix
+
+5: 协作者从服务器上获取数据时,他们将得到一个
+新的远程分支origin/serverfix
+
+6: 如果想要一份自己的serverfix 来开发,可以在
+远程分支的基础上分化出一个新的分支来
+git checkout -b serverfix origin/serverfix
+
+2) 跟踪分支
+从远程分支检出的本地分支,称为跟踪分支
+git checkout -b [分支名] [远程名]/[分支名]
+1.6.2 以上版本的Git,还可以用--track选项简化
+git checkout --track origin/serverfix
+
+3) 删除远程分支
+git push[远程名]   :[分支名]
+在这里提取空白然后把它变成[远程分支]
+
+14、衍合
+衍合：A产生的变化补丁重新在B的基础上打一遍
+rebase命令把在一个分支的改变在另一个分支里重放一遍
+$ git checkout experiment
+$ git rebase master
+rewinding head to replay your work on top of it...
+Applying: added staged command
+原理:回到两个分支的共同祖先,提取你所在分支每次提交时
+产生的差异,把这些差异分别保存到临时文件里,然后从当前
+分支到你需要衍合入的分支,依序施用每一个差异补丁文件
+
+git rebase --onto master server client
+检出client分支,找出client分支和server分支的共同祖先
+之后的变化,然后把它们在master上重演一遍
+
+git rebase [主分支] [特性分支]命令会先检出特性分支
+server,然后在主分支master上重演
+
+衍合注意事项
+永远不要衍合那些已经推送到公共仓库的更新
+
+15、杂项
+修复bug时,我们会通过创建新的bug分支进行修复,然后合并,
+最后删除,当手头工作没有完成时,先把工作现场git stash,
+然后去修复bug,修复后,再git stash pop,回到工作现场
+
