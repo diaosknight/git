@@ -1,1 +1,158 @@
- is clever
+1、初次运行Git前的配置
+配置文件说明：
+1) /etc/gitconfig文件：对所有用户的配置:使用
+   git config--system选项时，读写这个文件
+2) ~/.gitconfig文件：当前用户,使用git config
+   --global选项时,读写的就是这个文件
+3) 当前项目git目录配置文件(.git/config文件)对
+   当前项目有效,低级别配置会覆盖上层配置
+   
+配置用户名称和邮件地址
+$ git config --global user.name "John Doe"
+$ git config --global user.email abc@163.com
+如果要在特定的项目中使用其他名字或者邮件，
+只要去掉--global 选项重新配置即可
+
+查看配置信息
+git config --list 命令查看所有的配置信息
+git config user.name 查看某个特殊的变量名
+
+git配置查看
+git help config
+
+2、创建版本库
+版本库可以简单理解成一个目录,这个目录所有文件
+都可以被Git管理起来,每个文件的修改、删除，Git
+都能跟踪,以便任何时刻都可以追踪历史
+
+创建过程：
+$ mkdir learngit  在根目录下创建的
+$ cd learngit
+$ git init
+显示Initialized empty Git repository in .git/
+这个目录是隐藏的,可以通过ll -a 命令查看
+
+添加文件到Git仓库，分两步：
+第一步，使用命令git add <file>
+第二步，使用命令git commit,完成
+git commit命令,-m后面输入的是本次提交的说明
+例如：git commit -m "wrote a readme file"
+直接使用git commit会出现一个待编辑的文本
+
+要随时掌握工作区的状态,使用git status命令,
+用git diff可以查看修改内容
+
+git status 在不同阶段的显示：
+1)当我们修改了readme文件
+$ git status
+# On branch master
+# Changes not staged for commit:
+# (use "git add <file>" will be committed)
+# (use "git checkout -- <file>..."
+   to discard changes in working directory)
+#    modified:   readme.txt
+no changes added to commit 
+(use "git add" and/or "git commit -a")
+显示被修改了
+
+2)在$ git add readme.txt之后
+$ git status
+# On branch master
+# Changes to be committed:
+#(use "git reset HEAD <file>..." to unstage)
+#
+#       modified:   readme.txt
+先是将要被commit
+
+3)$ git commit -m "add distributed"后，
+$ git status
+# On branch master
+nothing to commit(working directory clean)
+
+或者使用git clone直接克隆一个远程项目
+git clone git@github.com:abc/gitskills.git克隆
+到当前目录,生成gitskills的文件夹,GitHub地址还
+可以用https://github.com/abc/gitskills.git
+Git支持多种协议,默认的git://使用ssh,但也可以使
+用https等其他协议,https除了速度慢以外,还有个最大
+的麻烦是每次推送都必须输入口令
+
+3、版本回退
+git log命令显示从最近到最远的提交日志
+$ git log
+commit 3628164fb26d48395383f8f31179f24e0882e1e0
+Author: Michael Liao <askxuefeng@gmail.com>
+Date:   Tue Aug 20 15:11:49 2013 +0800
+    append GPL
+commit ea34578d5496d7dd233c827ed32a8cd576c5ee85
+Author: Michael Liao <askxuefeng@gmail.com>
+Date:   Tue Aug 20 14:53:12 2013 +0800
+    add distributed
+commit cb926e7ea50ad11b8f9e909c05226233bf755030
+Author: Michael Liao <askxuefeng@gmail.com>
+Date:   Mon Aug 19 17:51:55 2013 +0800
+    wrote a readme file
+
+如果觉得输出信息太多,加上--pretty=oneline参数
+$ git log --pretty=oneline
+383f8f31179f24e0882e1e0 append GPL
+33c827ed32a8cd576c5ee85 add distributed
+8f9e909c05226233bf75503 wrote a readme file
+
+其中:3628164...882e1e0的是commit id(版本号),Git必
+须知道当前版本是哪个版本,在Git中,用HEAD表示当前版
+本,也就是最新的提交383f8,上一个版本就是HEAD^，
+上上一个版本就是HEAD^^，当然往上100为HEAD~100
+
+当前版本"append GPL"回退上一个版本“add distributed”
+就可以使用git reset命令：git reset --hard HEAD^
+还可以根据commit id回退,只需独有的前几位
+git reset --hard 33c8
+
+想要回退到当前版本之后的版本,这时必须使用commit号
+git reflog可以查看所有的commit记录
+
+4、工作区和暂存区
+工作区（Working Directory）是使用git init 创建的那个目录
+工作区有一个隐藏目录.git，是Git的版本库
+Git的版本库里存了很多东西，其中最重要的就是称为stage（或者叫index）的暂存区，
+还有Git为我们自动创建的第一个分支master，以及指向master的一个指针叫HEAD。
+git add命令实际上就是把要提交的所有修改放到暂存区（Stage）
+git commit就可以一次性把暂存区的所有修改提交到分支
+git diff HEAD -- file命令可以查看工作区和版本库里面最新版本的区别
+
+5、撤销修改
+git checkout -- file可以丢弃工作区的修改
+命令git checkout -- readme.txt意思就是，把readme.txt文件在工作区的修改全部撤销，这里有两种情况：
+一种是readme.txt自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；
+一种是readme.txt已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。
+总之，就是让这个文件回到最近一次git commit或git add时的状态。
+git checkout -- file命令中的--很重要，没有--，就变成了“切换到另一个分支”的命令
+
+如果不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改
+1、git reset HEAD file可以把暂存区的修改撤销掉
+2、git checkout -- file 将目录清空
+
+6、删除文件
+如果使用rm命令删除了工作区的文件，这时需要使用
+git rm file删掉，并且git commit提交给版本库
+如果删除错了，这时需要使用：
+git checkout -- file  git checkout其实是用版本库里的版本替换工作区的版本，
+无论工作区是修改还是删除，都可以“一键还原”。
+
+7、添加远程库
+当在某个文件夹下使用了git init时，为了和某个远程库连接在一起
+git remote add origin git@github.com:michaelliao/learngit.git
+会将远程库和当前目录联系在一起，远程库的名字就是origin，这是Git默认的叫法。
+git push -u origin master 把当前分支master推送到远程origin。
+由于远程库是空的，我们第一次推送master分支时，加上了-u参数，Git不但会把本地的master
+分支内容推送的远程新的master分支，还会把本地的master分支和远程的master分支关联起来，
+在以后的推送或者拉取时就可以简化命令。以后只需使用git push origin master
+
+8、从远程库克隆
+git clone git@github.com:michaelliao/gitskills.git
+把git克隆到当前的目录下，这时会生成一个叫做gitskills的文件夹
+GitHub的地址还可以用https://github.com/michaelliao/gitskills.git
+实际上，Git支持多种协议，默认的git://使用ssh，但也可以使用https等其他协议。
+使用https除了速度慢以外，还有个最大的麻烦是每次推送都必须输入口令，但是在
+某些只开放http端口的公司内部就无法使用ssh协议而只能用https。

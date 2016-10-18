@@ -1,0 +1,56 @@
+git安装及基本配置
+
+1、yum库安装代理(可选)
+在/etc/yum.conf添加
+proxy=http://10.10.10.10:8080/
+
+2、centos下安装
+yum install git
+
+3、git安装代理(可选)
+git config --global http.proxy http://10.10.10.10:8080 
+
+4、配置用户名和邮件（全局）
+git config --global user.name “diaosknight” 
+git config --global user.email “diaosknight@gmail.com”
+
+5、SSH Key的配置
+切换到用户根目录 看看有没有.ssh 目录
+cd 
+ls -a 
+cd .ssh 
+ls
+
+这个目录下应该包含两个文件 :id_rsa和id_rsa.pub。这两个就是SSH Key的
+秘钥对。id_rsa是私钥，不能泄露出去，id_rsa.pub是公钥，可以放心地告诉任何人
+如果没有,则生成。命令为 ssh-keygen -t rsa -C “diaosknight@gmail.com”
+
+具体过程如下所示：
+生成过程
+
+# 输入命令 
+[root@www ~]# ssh-keygen -t rsa -C "diaosknight@gmail.com"
+Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa): 
+
+# 输入密码 可留空 
+Enter passphrase (empty for no passphrase): 
+
+# 再次输入密码
+Enter same passphrase again: 
+
+# 文件生成后的路径 
+# 私钥路径
+Your identification has been saved in /root/.ssh/id_rsa.
+# 公钥路径
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+
+6、将生成的密钥配置到远端服务器
+读公钥内容
+cat ~/.ssh/id_rsa.pub
+在浏览器打开 GitHub 并配置值
+在setting里面的ssh keys进行添加即可。
+
+7、git取消全局配置
+git config --global --unset http.proxy
+git config --global --unset https.proxy
